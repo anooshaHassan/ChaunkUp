@@ -11,7 +11,8 @@ ChaunkUp is a web app that checks suspicious messages, screenshots and voice not
 
 "Chaunk" is Urdu for being startled into alertness. ChaunkUp is the nudge that wakes someone up before they send money, share an OTP or click a fake link.
 
-**Team name:** ChaunkUp
+**Team name:** ChaunkUp Guards
+**Project name:** ChaunkUp
 **Project type:** Digital trust and safety, AI for social good
 
 ---
@@ -212,6 +213,10 @@ The backend validates the JSON before it reaches the interface, and falls back t
 ---
 
 ## 15. Team
+
+**Team name:** ChaunkUp Guards
+**Team lead:** Anoosha Hassan
+**Team size:** 2
 
 | Name | Role | Devpost username |
 |---|---|---|
