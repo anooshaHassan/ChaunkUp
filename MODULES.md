@@ -18,7 +18,7 @@ Build:
 - Tailored next-step advice based on verdict and scam type.
 - Mixed-language input (for example Roman Urdu plus English) analysed correctly.
 Done when: A Roman Urdu scam message shows its red flags highlighted and the explanation switches across all three languages.
-- [ ] Status
+- [x] Status
 
 ## 3. Screenshot input
 Goal: Upload a screenshot, get the same structured result as text.

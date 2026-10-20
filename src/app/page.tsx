@@ -2,20 +2,11 @@
 
 import { useState, useRef } from "react";
 import { highlightRedFlags, type RedFlag } from "@/lib/highlight";
+import CircleManager from "@/components/CircleManager";
+import AlertPanel from "@/components/AlertPanel";
+import type { AnalysisResult } from "@/lib/schema";
 
 type Verdict = "scam" | "suspicious" | "safe";
-
-type Analysis = {
-  verdict: Verdict;
-  confidence: number;
-  scam_type: string;
-  red_flags: RedFlag[];
-  explanation_en: string;
-  explanation_ur: string;
-  explanation_roman: string;
-  recommended_actions: string[];
-};
-
 type Language = "en" | "ur" | "roman";
 
 const verdictColors: Record<Verdict, string> = {
@@ -36,7 +27,10 @@ const languageLabels: Record<Language, string> = {
   roman: "Roman Urdu",
 };
 
-const explanationField: Record<Language, "explanation_en" | "explanation_ur" | "explanation_roman"> = {
+const explanationField: Record<
+  Language,
+  "explanation_en" | "explanation_ur" | "explanation_roman"
+> = {
   en: "explanation_en",
   ur: "explanation_ur",
   roman: "explanation_roman",
@@ -55,7 +49,8 @@ export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Analysis | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [checkId, setCheckId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [language, setLanguage] = useState<Language>("en");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -107,6 +102,7 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     setResult(null);
+    setCheckId(null);
     setError(null);
 
     let res: Response;
@@ -133,6 +129,7 @@ export default function Home() {
         setError(data.error || "Could not analyse this, treat it with caution.");
       } else {
         setResult(data.result);
+        setCheckId(typeof data.checkId === "number" ? data.checkId : null);
       }
     } catch {
       setError("Could not analyse this, treat it with caution.");
@@ -142,7 +139,7 @@ export default function Home() {
   }
 
   const highlightedSegments = result && !imageFile
-    ? highlightRedFlags(text, result.red_flags)
+    ? highlightRedFlags(text, result.red_flags as RedFlag[])
     : [];
 
   const hasInput = text.trim().length > 0 || imageFile !== null;
@@ -258,7 +255,15 @@ export default function Home() {
             background: "#fff",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginBottom: 12,
+              flexWrap: "wrap",
+            }}
+          >
             <span
               style={{
                 background: verdictColors[result.verdict],
@@ -360,11 +365,19 @@ export default function Home() {
           <h3 style={{ margin: "16px 0 8px", fontSize: 16 }}>What to do next</h3>
           <ul style={{ paddingLeft: 18, margin: 0 }}>
             {result.recommended_actions.map((action, i) => (
-              <li key={i} style={{ marginBottom: 6 }}>{action}</li>
+              <li key={i} style={{ marginBottom: 6 }}>
+                {action}
+              </li>
             ))}
           </ul>
+
+          {checkId !== null && result.verdict !== "safe" && (
+            <AlertPanel checkId={checkId} result={result} />
+          )}
         </div>
       )}
+
+      <CircleManager />
     </main>
   );
 }

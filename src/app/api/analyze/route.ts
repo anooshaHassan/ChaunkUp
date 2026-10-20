@@ -100,12 +100,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let checkId: number | undefined;
   try {
-    await pool.query(
+    const insert = await pool.query(
       `INSERT INTO checks (
         input_type, input_text, verdict, confidence, scam_type,
         red_flags, explanation_en, explanation_ur, explanation_roman, recommended_actions
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING id`,
       [
         inputType,
         text,
@@ -119,9 +121,10 @@ export async function POST(request: NextRequest) {
         analysis.recommended_actions,
       ]
     );
+    checkId = insert.rows[0]?.id;
   } catch (dbError) {
     console.error("Failed to save check:", dbError);
   }
 
-  return NextResponse.json({ result: analysis });
+  return NextResponse.json({ result: analysis, checkId });
 }
