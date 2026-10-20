@@ -29,7 +29,7 @@ Build:
 - Unreadable-image fallback saying the image could not be read.
 - Reminder on upload to hide OTPs and PINs; images are not stored.
 Done when: Upload a screenshot of a scam message and receive a verdict card identical in structure to a text check.
-- [ ] Status
+- [x] Status
 
 ## 4. Circle and alerts
 Goal: Save trusted contacts and alert them with one tap, never automatically.

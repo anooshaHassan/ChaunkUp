@@ -9,7 +9,7 @@ type CheckRow = {
   confidence: number;
   scam_type: string;
   red_flags: RedFlagRow[];
-  explanation_en: string;
+  recommended_actions: string[];
 };
 
 function buildAlertText(row: CheckRow): string {
@@ -36,7 +36,8 @@ function buildAlertText(row: CheckRow): string {
     }
   }
 
-  text += `\n\nAdvice: ${row.explanation_en}`;
+  const advice = (row.recommended_actions ?? [])[0] ?? "Be careful with unexpected messages.";
+  text += `\n\nAdvice: ${advice}`;
   text += `\n\nStay safe — ChaunkUp`;
   return text;
 }
@@ -52,7 +53,7 @@ export async function GET(
 
   try {
     const { rows } = await pool.query<CheckRow>(
-      "SELECT input_text, verdict, confidence, scam_type, red_flags, explanation_en FROM checks WHERE id = $1",
+      "SELECT input_text, verdict, confidence, scam_type, red_flags, recommended_actions FROM checks WHERE id = $1",
       [id]
     );
 

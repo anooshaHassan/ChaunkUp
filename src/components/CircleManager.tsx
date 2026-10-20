@@ -84,9 +84,13 @@ export default function CircleManager() {
 
   return (
     <section style={{ marginTop: 32 }}>
-      <h2 style={{ fontSize: 20, marginBottom: 12 }}>My Circle</h2>
-      <p style={{ color: "#666", marginBottom: 16 }}>
+      <h2 style={{ fontSize: 22, marginBottom: 12, color: "#3B2A4A" }}>My Circle</h2>
+      <p style={{ color: "#6b21a8", marginBottom: 16 }}>
         Save trusted family contacts to alert them with one tap.
+      </p>
+      <p style={{ color: "#7c3aed", fontSize: 13, marginBottom: 16 }}>
+        Contact must be a valid email or a phone number with 10 to 15 digits
+        (optional leading +).
       </p>
 
       <form onSubmit={handleAdd} style={{ marginBottom: 16 }}>
@@ -97,7 +101,15 @@ export default function CircleManager() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Name (e.g. Ammi)"
             maxLength={100}
-            style={{ flex: 1, minWidth: 120, padding: 10, fontSize: 16 }}
+            style={{
+              flex: 1,
+              minWidth: 120,
+              padding: 12,
+              fontSize: 16,
+              borderRadius: 10,
+              border: "1px solid #e9d5ff",
+              background: "#fff",
+            }}
           />
           <input
             type="text"
@@ -105,7 +117,15 @@ export default function CircleManager() {
             onChange={(e) => setContact(e.target.value)}
             placeholder="WhatsApp number or email"
             maxLength={255}
-            style={{ flex: 2, minWidth: 180, padding: 10, fontSize: 16 }}
+            style={{
+              flex: 2,
+              minWidth: 180,
+              padding: 12,
+              fontSize: 16,
+              borderRadius: 10,
+              border: "1px solid #e9d5ff",
+              background: "#fff",
+            }}
           />
           <button
             type="submit"
@@ -132,7 +152,7 @@ export default function CircleManager() {
             marginBottom: 16,
             padding: 12,
             background: "#fef3c7",
-            borderRadius: 8,
+            borderRadius: 10,
             color: "#92400e",
           }}
         >
@@ -152,7 +172,7 @@ export default function CircleManager() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "10px 12px",
-                border: "1px solid #e5e7eb",
+                border: "1px solid #e9d5ff",
                 borderRadius: 8,
                 marginBottom: 8,
                 background: "#fff",

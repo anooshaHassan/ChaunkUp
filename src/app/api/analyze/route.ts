@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyzeMessage, analyzeImage } from "@/lib/gemini";
+import { analyzeMessage, analyzeImage, UnreadableImageError } from "@/lib/gemini";
 import { pool } from "@/lib/db";
 
 export const runtime = "nodejs";
 
 const FALLBACK_TEXT = "Could not analyse this message, treat it with caution.";
 const FALLBACK_IMAGE = "Could not analyse this screenshot, treat it with caution.";
+const UNREADABLE_IMAGE = "We could not read a message in this image, try pasting the text instead.";
 
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
@@ -13,7 +14,7 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
   "image/gif",
 ];
-const MAX_IMAGE_BYTES = 1 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_TEXT_LENGTH = 4000;
 
 export async function POST(request: NextRequest) {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_IMAGE_BYTES) {
       return NextResponse.json(
-        { error: "Image must be smaller than 1 MB." },
+        { error: "Image must be smaller than 5 MB." },
         { status: 400 }
       );
     }
@@ -86,6 +87,9 @@ export async function POST(request: NextRequest) {
   try {
     analysis = image ? await analyzeImage(image) : await analyzeMessage(text);
   } catch (aiError) {
+    if (aiError instanceof UnreadableImageError) {
+      return NextResponse.json({ error: UNREADABLE_IMAGE }, { status: 422 });
+    }
     console.error("AI analysis failed:", aiError);
     return NextResponse.json(
       { error: image ? FALLBACK_IMAGE : FALLBACK_TEXT },

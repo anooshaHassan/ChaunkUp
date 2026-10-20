@@ -86,14 +86,16 @@ export default function AlertPanel({ checkId, result }: Props) {
       <button
         onClick={openPanel}
         style={{
-          marginTop: 16,
-          padding: "10px 18px",
+          marginTop: 20,
+          padding: "12px 20px",
           fontSize: 16,
           background: "#dc2626",
           color: "#fff",
           border: "none",
-          borderRadius: 4,
+          borderRadius: 12,
           cursor: "pointer",
+          fontWeight: 600,
+          width: "100%",
         }}
       >
         Alert my Circle
