@@ -8,7 +8,7 @@ Build:
 - Save each check to the checks table.
 - One page: one text box, one button, one coloured result card (red, yellow, green).
 Done when: Paste a known scam message, tap Check, and see a coloured verdict card with confidence.
-- [ ] Status
+- [x] Status
 
 ## 2. Languages, highlights and advice
 Goal: Verdicts explained in English, Urdu and Roman Urdu with clear evidence.
