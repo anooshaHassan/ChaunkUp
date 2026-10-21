@@ -118,11 +118,11 @@ export async function POST(request: NextRequest) {
         analysis.verdict,
         analysis.confidence,
         analysis.scam_type,
-        analysis.red_flags,
+        JSON.stringify(analysis.red_flags),
         analysis.explanation_en,
         analysis.explanation_ur,
         analysis.explanation_roman,
-        analysis.recommended_actions,
+        JSON.stringify(analysis.recommended_actions),
       ]
     );
     checkId = insert.rows[0]?.id;

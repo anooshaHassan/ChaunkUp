@@ -39,7 +39,7 @@ Build:
 - Generated alert text containing the original message, the verdict, the top red flags and one short advice line.
 - WhatsApp or email share link; nothing is sent without the user's tap.
 Done when: Add a contact, run a scam check, tap Alert my Circle, and see the share link open with the alert text filled in.
-- [ ] Status
+- [x] Status
 
 ## 5. History and polish
 Goal: Reopen past checks on a friendly, mobile-ready app.
@@ -50,7 +50,7 @@ Build:
 - Mobile-friendly layout.
 - Header with the name ChaunkUp and the tagline "Chaunk up. Don't fall for it."
 Done when: Run two checks, open History, tap one, and see its full result on a phone-sized screen with the theme applied.
-- [ ] Status
+- [x] Status
 
 ## 6. Hardening
 Goal: Prove accuracy and handle failure kindly.
@@ -60,7 +60,7 @@ Build:
 - Friendly error states for failed analysis, bad uploads and empty inputs.
 - README with run steps.
 Done when: Run the test set and see an accuracy report; trigger a bad input and see a friendly error, not a crash.
-- [ ] Status
+- [x] Status
 
 ## Rules
 - Build one module at a time.

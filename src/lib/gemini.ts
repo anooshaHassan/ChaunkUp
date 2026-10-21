@@ -1,9 +1,5 @@
 import { analysisSchema, type AnalysisResult } from "./schema";
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY is not set");
-}
-
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
 
@@ -62,12 +58,20 @@ function buildRequestBody(
   };
 }
 
+function ensureApiKey(): void {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not set. Add it to the workspace Secrets panel.");
+  }
+}
+
 async function callGemini(body: object): Promise<string> {
+  ensureApiKey();
+  const key = process.env.GEMINI_API_KEY!;
   const res = await fetch(GEMINI_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": process.env.GEMINI_API_KEY,
+      "x-goog-api-key": key,
     },
     body: JSON.stringify(body),
   });
