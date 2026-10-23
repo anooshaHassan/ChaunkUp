@@ -99,21 +99,19 @@ ChaunkUp returns:
 
 ## 7. System Architecture
 
-```
-Browser (HTML / JS frontend)
+Browser (Next.js pages with React)
+        |  every request carries the anonymous owner id
+        v
+Next.js API routes
+   |-- /api/analyze        : text or image in, structured verdict out
+   |-- /api/circle         : add, list and remove trusted contacts
+   |-- /api/alert/[id]     : build the alert for a saved check
+   |-- /api/history        : list and fetch past checks
+        |
+        |-- Gemini API (analysis and explanation, structured JSON output)
         |
         v
-FastAPI backend
-   |-- /analyze   : text or image in, structured verdict out
-   |-- /circle    : manage trusted contacts
-   |-- /alert     : build the shareable alert for the Circle
-   |-- /history   : list past checks
-        |
-        |-- LLM API (analysis and explanation, structured JSON output)
-        |
-        v
-SQLite (users, circle members, check history)
-```
+Postgres (built-in database): checks and circle_members, each row scoped by owner_id
 
 ### Structured model output
 
@@ -134,12 +132,11 @@ The backend validates the JSON before it reaches the interface, and falls back t
 
 | Layer | Choice | Reason |
 |---|---|---|
-| Backend | Python, FastAPI | Fast to build, clean async API |
-| AI | Claude API (text and vision) | Strong multilingual understanding and reliable structured output |
-| Frontend | HTML, CSS, JavaScript | Zero build step, easy to demo on any device |
-| Database | SQLite | No server, one file, fine for a prototype |
-| Alerts | WhatsApp and email share links | Free and works with the apps people already use |
-| Deployment | Local for the demo; Render or Railway if time allows | Presentable from a laptop with a backup recording |
+| Frontend and backend | Next.js (TypeScript, React) | One project for pages and API routes |
+| AI | Gemini API (gemini-3.5-flash-lite), text and vision | Multilingual understanding, reads screenshots, free tier |
+| Database | Postgres (built into DevMarketplace) | Saves checks and Circle contacts |
+| Alerts | WhatsApp and email share links | Free and uses apps people already have |
+| Deployment | DevMarketplace | Built and hosted in the hackathon platform |
 
 ---
 
@@ -172,7 +169,7 @@ The backend validates the JSON before it reaches the interface, and falls back t
 
 - **Minimal data:** only the submitted message and its verdict are processed. No access to the user's inbox, contacts or phone.
 - **User-initiated alerts:** nothing is sent to the Circle unless the user taps the button.
-- **Local-first storage:** history is kept in the user's own database file in the prototype.
+- **Per-browser privacy:** each browser gets a random anonymous id, and contacts and history are saved against it, so visitors never see each other's data. There are no accounts.
 - **Sensitive details:** the interface reminds users to hide OTPs, PINs and card numbers before uploading screenshots.
 - **Honest uncertainty:** the app shows confidence and uses the Suspicious category instead of forcing a yes or no. It advises verification through official channels, and does not claim to be infallible.
 - **No impersonation of authorities:** the app only advises users to contact official channels, never presents itself as one.
@@ -227,4 +224,4 @@ The backend validates the JSON before it reaches the interface, and falls back t
 
 ## 16. Repository Status
 
-This repository currently contains documentation only, in line with the hackathon rules. All implementation begins after the official kickoff, and this SPEC.md will serve as the starting point for the build.
+Working MVP built on DevMarketplace. All six modules are complete: text analysis, languages and highlights, screenshot input, Circle and alerts, history and polish, and hardening with a 30-message test set. See README.md for run steps and known limitations.

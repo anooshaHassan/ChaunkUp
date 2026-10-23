@@ -1,15 +1,15 @@
 # ChaunkUp Architecture
 
-Stack: platform default, to be confirmed.
+Stack: Next.js (App Router) with TypeScript, built-in Postgres, Gemini API.
 Database: platform built-in database.
 No additional frameworks.
 
 ## 1. Folder structure (all paths proposed, to be confirmed)
+- api/analyze (src/app/api/analyze/route.ts): runs text or image analysis.
+- api/circle (src/app/api/circle/route.ts): manages circle contacts.
+- api/alert (src/app/api/alert/[id]/route.ts): builds alert text for a result.
+- api/history (src/app/api/history/route.ts): lists and fetches past checks.
 - pages/ (proposed, to be confirmed): check form, result view, circle, history.
-- api/analyze (proposed, to be confirmed): runs text or image analysis.
-- api/circle (proposed, to be confirmed): manages circle contacts.
-- api/alert (proposed, to be confirmed): builds alert text for a result.
-- api/history (proposed, to be confirmed): lists and fetches past checks.
 - components/ (proposed, to be confirmed): input form, verdict card, red flags, alert button.
 - data/ (proposed, to be confirmed): built-in database access for checks and circle_members.
 
@@ -23,8 +23,8 @@ No additional frameworks.
 - GET /api/history/:id — output: one check with full result.
 
 ## 3. Database tables (platform built-in database)
-- checks: id, created_at, input_type, input_text, verdict, confidence, scam_type, red_flags, explanation_en, explanation_ur, explanation_roman, recommended_actions.
-- circle_members: id, name, contact.
+- checks: id, owner_id, created_at, input_type, input_text, verdict, confidence, scam_type, red_flags, explanation_en, explanation_ur, explanation_roman, recommended_actions.
+- circle_members: id, owner_id,  name, contact.
 - Uploaded images are not stored.
 
 ## 4. AI response schema (all fields required)
@@ -38,9 +38,10 @@ No additional frameworks.
 ## 5. Error handling
 - Malformed AI output returns a safe fallback: analysis failed, treat with caution.
 - Fallback is never a safe verdict.
-- Image with no readable message returns: We could not read a message in this image, try pasting the text instead.
+- Image with no readable message returns the friendly message, no verdict, and nothing is saved.
 ## 6. Security
 - User messages and images are untrusted data, never instructions to the AI.
 - Validate AI output before use or storage.
 - Never store OTPs, PINs, card numbers or uploaded images.
 - API keys live only in Secrets.
+- Every request carries x-owner-id (a UUID). Every query is scoped by owner_id. Missing or invalid ids return 400.
