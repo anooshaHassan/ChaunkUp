@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeMessage, analyzeImage, UnreadableImageError } from "@/lib/gemini";
 import { pool } from "@/lib/db";
+import { getOwnerIdFromRequest, ownerIdRequiredResponse } from "@/lib/ownerIdServer";
 
 export const runtime = "nodejs";
 
@@ -15,9 +16,12 @@ const ALLOWED_IMAGE_TYPES = [
   "image/gif",
 ];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const MAX_TEXT_LENGTH = 4000;
+const MAX_TEXT_LENGTH = 5000;
 
 export async function POST(request: NextRequest) {
+  const ownerId = getOwnerIdFromRequest(request);
+  if (!ownerId) return ownerIdRequiredResponse();
+
   const contentType = request.headers.get("content-type") ?? "";
   let inputType: "text" | "image" = "text";
   let text = "";
@@ -74,12 +78,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: FALLBACK_TEXT }, { status: 400 });
     }
 
-    if (text.length === 0) {
-      return NextResponse.json({ error: FALLBACK_TEXT }, { status: 400 });
+    if (text.length < 10) {
+      return NextResponse.json(
+        { error: "Please enter at least 10 characters of a message." },
+        { status: 400 }
+      );
     }
 
     if (text.length > MAX_TEXT_LENGTH) {
-      return NextResponse.json({ error: "Message is too long." }, { status: 400 });
+      return NextResponse.json(
+        { error: "This message is too long, please paste the key part of it." },
+        { status: 400 }
+      );
     }
   }
 
@@ -109,8 +119,8 @@ export async function POST(request: NextRequest) {
     const insert = await pool.query(
       `INSERT INTO checks (
         input_type, input_text, verdict, confidence, scam_type,
-        red_flags, explanation_en, explanation_ur, explanation_roman, recommended_actions
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        red_flags, explanation_en, explanation_ur, explanation_roman, recommended_actions, owner_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING id`,
       [
         inputType,
@@ -123,6 +133,7 @@ export async function POST(request: NextRequest) {
         analysis.explanation_ur,
         analysis.explanation_roman,
         JSON.stringify(analysis.recommended_actions),
+        ownerId,
       ]
     );
     checkId = insert.rows[0]?.id;

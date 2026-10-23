@@ -17,7 +17,18 @@ Add these in the workspace Secrets panel:
 
 - `GEMINI_API_KEY` — required for analysis. Get one at https://aistudio.google.com/app/apikey
 - `DATABASE_URL` — provided by the platform for the built-in Postgres database.
-- `SESSION_SECRET` — provided by the platform.
+
+## Database migrations
+
+Migrations in `db/migrations` are applied automatically when running `npm run build`. To run them manually:
+
+```bash
+npm run migrate
+```
+
+## Privacy
+
+Each browser gets an anonymous owner id generated on first visit and stored in `localStorage` under the key `chaunkup_owner`. The id is sent with every API request in the `x-owner-id` header and as an `owner` query parameter fallback. My Circle and History are scoped to that owner id and are not shared across browsers.
 
 ## Phase 6 scope
 

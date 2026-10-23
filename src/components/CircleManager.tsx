@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/ownerId";
 
 type Contact = {
   id: number;
@@ -17,7 +18,7 @@ export default function CircleManager() {
 
   async function fetchContacts() {
     try {
-      const res = await fetch("/api/circle");
+      const res = await apiFetch("/api/circle");
       const data = await res.json();
       if (res.ok) {
         setContacts(data.contacts ?? []);
@@ -47,7 +48,7 @@ export default function CircleManager() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/circle", {
+      const res = await apiFetch("/api/circle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: trimmedName, contact: trimmedContact }),
@@ -70,7 +71,7 @@ export default function CircleManager() {
   async function handleRemove(id: number) {
     setError(null);
     try {
-      const res = await fetch(`/api/circle/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/circle/${id}`, { method: "DELETE" });
       if (res.ok || res.status === 204) {
         setContacts((prev) => prev.filter((c) => c.id !== id));
       } else {

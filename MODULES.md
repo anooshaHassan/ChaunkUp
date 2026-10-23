@@ -60,7 +60,7 @@ Build:
 - Friendly error states for failed analysis, bad uploads and empty inputs.
 - README with run steps.
 Done when: Run the test set and see an accuracy report; trigger a bad input and see a friendly error, not a crash.
-- [] Status
+- [x] Status
 
 ## Rules
 - Build one module at a time.

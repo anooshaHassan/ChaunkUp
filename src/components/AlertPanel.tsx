@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { buildShareLinks } from "@/lib/share";
+import { apiFetch } from "@/lib/ownerId";
 import type { AnalysisResult } from "@/lib/schema";
 
 type Contact = {
@@ -25,12 +26,17 @@ export default function AlertPanel({ checkId, result }: Props) {
 
   async function fetchContacts() {
     try {
-      const res = await fetch("/api/circle");
+      const res = await apiFetch("/api/circle");
       const data = await res.json();
       if (res.ok) {
         setContacts(data.contacts ?? []);
+        setError(null);
+      } else {
+        setError(data.error || "Could not load contacts.");
+        setContacts([]);
       }
     } catch {
+      setError("Could not load contacts.");
       setContacts([]);
     } finally {
       setLoadingContacts(false);
@@ -51,7 +57,7 @@ export default function AlertPanel({ checkId, result }: Props) {
 
     setLoadingText(true);
     try {
-      const res = await fetch(`/api/alert/${checkId}`);
+      const res = await apiFetch(`/api/alert/${checkId}`);
       const data = await res.json();
       if (res.ok && typeof data.text === "string") {
         setAlertText(data.text);
@@ -71,6 +77,22 @@ export default function AlertPanel({ checkId, result }: Props) {
 
   if (loadingContacts) {
     return <p style={{ marginTop: 16, color: "#666" }}>Loading contacts...</p>;
+  }
+
+  if (error && contacts.length === 0) {
+    return (
+      <div
+        style={{
+          marginTop: 16,
+          padding: 12,
+          background: "#fee2e2",
+          borderRadius: 10,
+          color: "#991b1b",
+        }}
+      >
+        {error}
+      </div>
+    );
   }
 
   if (contacts.length === 0) {

@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
+import { getOwnerIdFromRequest, ownerIdRequiredResponse } from "@/lib/ownerIdServer";
 
 export const runtime = "nodejs";
 
@@ -13,13 +14,18 @@ type HistoryRow = {
   scam_type: string;
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const ownerId = getOwnerIdFromRequest(request);
+  if (!ownerId) return ownerIdRequiredResponse();
+
   try {
     const { rows } = await pool.query<HistoryRow>(
       `SELECT id, created_at, input_type, input_text, verdict, confidence, scam_type
        FROM checks
+       WHERE owner_id = $1
        ORDER BY created_at DESC
-       LIMIT 100`
+       LIMIT 100`,
+      [ownerId]
     );
     return NextResponse.json({ checks: rows });
   } catch (error) {

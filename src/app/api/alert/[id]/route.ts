@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
+import { getOwnerIdFromRequest, ownerIdRequiredResponse } from "@/lib/ownerIdServer";
 
 type RedFlagRow = { phrase: string; reason: string };
 
@@ -43,9 +44,12 @@ function buildAlertText(row: CheckRow): string {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const ownerId = getOwnerIdFromRequest(request);
+  if (!ownerId) return ownerIdRequiredResponse();
+
   const id = parseInt(params.id, 10);
   if (Number.isNaN(id)) {
     return NextResponse.json({ error: "Invalid check id." }, { status: 400 });
@@ -53,8 +57,8 @@ export async function GET(
 
   try {
     const { rows } = await pool.query<CheckRow>(
-      "SELECT input_text, verdict, confidence, scam_type, red_flags, recommended_actions FROM checks WHERE id = $1",
-      [id]
+      "SELECT input_text, verdict, confidence, scam_type, red_flags, recommended_actions FROM checks WHERE id = $1 AND owner_id = $2",
+      [id, ownerId]
     );
 
     if (rows.length === 0) {

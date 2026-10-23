@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/ownerId";
 
 type Verdict = "scam" | "suspicious" | "safe";
 
@@ -51,7 +52,7 @@ export default function HistoryPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/history");
+        const res = await apiFetch("/api/history");
         const data = await res.json();
         if (res.ok) {
           setChecks(data.checks ?? []);

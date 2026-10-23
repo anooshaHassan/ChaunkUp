@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import type { AnalysisResult } from "@/lib/schema";
+import { getOwnerIdFromRequest, ownerIdRequiredResponse } from "@/lib/ownerIdServer";
 
 export const runtime = "nodejs";
 
@@ -20,24 +21,33 @@ type CheckRow = {
 };
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const ownerId = getOwnerIdFromRequest(request);
+  if (!ownerId) return ownerIdRequiredResponse();
+
   const id = parseInt(params.id, 10);
   if (Number.isNaN(id)) {
-    return NextResponse.json({ error: "Invalid check id." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid check id." },
+      { status: 400 }
+    );
   }
 
   try {
     const { rows } = await pool.query<CheckRow>(
       `SELECT id, created_at, input_type, input_text, verdict, confidence, scam_type,
               red_flags, explanation_en, explanation_ur, explanation_roman, recommended_actions
-       FROM checks WHERE id = $1`,
-      [id]
+       FROM checks WHERE id = $1 AND owner_id = $2`,
+      [id, ownerId]
     );
 
     if (rows.length === 0) {
-      return NextResponse.json({ error: "Check not found." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Check not found." },
+        { status: 404 }
+      );
     }
 
     const row = rows[0];

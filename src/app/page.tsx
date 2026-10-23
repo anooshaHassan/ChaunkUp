@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import ResultCard from "@/components/ResultCard";
 import CircleManager from "@/components/CircleManager";
+import { apiFetch } from "@/lib/ownerId";
 import type { AnalysisResult } from "@/lib/schema";
 
 const ALLOWED_IMAGE_TYPES = [
@@ -80,12 +81,12 @@ export default function Home() {
       if (imageFile) {
         const form = new FormData();
         form.append("image", imageFile);
-        res = await fetch("/api/analyze", {
+        res = await apiFetch("/api/analyze", {
           method: "POST",
           body: form,
         });
       } else {
-        res = await fetch("/api/analyze", {
+        res = await apiFetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
@@ -101,7 +102,11 @@ export default function Home() {
         setCheckId(typeof data.checkId === "number" ? data.checkId : null);
       }
     } catch {
-      setError("Could not analyse this, treat it with caution.");
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        setError("No internet connection, please check your connection and try again.");
+      } else {
+        setError("Could not analyse this message, treat it with caution.");
+      }
     } finally {
       setLoading(false);
     }

@@ -22,7 +22,8 @@ Rules:
 - Choose "scam" for clear danger signals: requests for OTP/PIN/CNIC/card details, upfront fees, fake prizes, threats with deadlines, suspicious links, impersonation of banks/wallets/couriers/government.
 - Choose "suspicious" when some signals exist but it could still be genuine.
 - Choose "safe" when no signals appear, but still advise caution with unknown senders.
-- Limit red_flags to the strongest five, using exact phrases from the message when available.
+- Limit red_flags to the strongest five.
+- Copy each red flag phrase exactly as it appears in the message, preserving spaces and punctuation, so the interface can highlight it.
 - Keep all explanations in simple everyday words.
 - Do not include any text outside the JSON object.`;
 

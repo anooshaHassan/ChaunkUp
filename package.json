@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "predev": "npm run migrate",
+    "migrate": "tsx scripts/migrate.ts",
+    "build": "npm run migrate && next build",
     "start": "next start",
     "evaluate": "tsx scripts/evaluate.ts"
   },

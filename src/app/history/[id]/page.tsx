@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import ResultCard from "@/components/ResultCard";
+import { apiFetch } from "@/lib/ownerId";
 import type { AnalysisResult } from "@/lib/schema";
 
 type Check = {
@@ -24,7 +25,7 @@ export default function HistoryDetailPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/history/${id}`);
+        const res = await apiFetch(`/api/history/${id}`);
         const data = await res.json();
         if (res.ok) {
           setCheck(data.check);

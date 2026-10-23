@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { validateContact, normalizePhone } from "@/lib/share";
+import { getOwnerIdFromRequest, ownerIdRequiredResponse } from "@/lib/ownerIdServer";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const ownerId = getOwnerIdFromRequest(request);
+  if (!ownerId) return ownerIdRequiredResponse();
+
   try {
     const { rows } = await pool.query(
-      "SELECT id, name, contact FROM circle_members ORDER BY created_at DESC"
+      "SELECT id, name, contact FROM circle_members WHERE owner_id = $1 ORDER BY created_at DESC",
+      [ownerId]
     );
     return NextResponse.json({ contacts: rows });
   } catch (error) {
@@ -20,6 +25,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const ownerId = getOwnerIdFromRequest(request);
+  if (!ownerId) return ownerIdRequiredResponse();
+
   let body: { name?: unknown; contact?: unknown } = {};
   try {
     body = await request.json();
@@ -62,8 +70,8 @@ export async function POST(request: NextRequest) {
   try {
     if (contact.includes("@")) {
       const { rows } = await pool.query(
-        "SELECT id FROM circle_members WHERE LOWER(contact) = LOWER($1)",
-        [contact]
+        "SELECT id FROM circle_members WHERE owner_id = $1 AND LOWER(contact) = LOWER($2)",
+        [ownerId, contact]
       );
       if (rows.length > 0) {
         return NextResponse.json(
@@ -74,8 +82,8 @@ export async function POST(request: NextRequest) {
     } else {
       const digits = normalizePhone(contact);
       const { rows } = await pool.query(
-        "SELECT id FROM circle_members WHERE regexp_replace(contact, '[^0-9]', '', 'g') = $1",
-        [digits]
+        "SELECT id FROM circle_members WHERE owner_id = $1 AND regexp_replace(contact, '[^0-9]', '', 'g') = $2",
+        [ownerId, digits]
       );
       if (rows.length > 0) {
         return NextResponse.json(
@@ -86,10 +94,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { rows } = await pool.query(
-      `INSERT INTO circle_members (name, contact)
-       VALUES ($1, $2)
+      `INSERT INTO circle_members (name, contact, owner_id)
+       VALUES ($1, $2, $3)
        RETURNING id, name, contact`,
-      [name, contact]
+      [name, contact, ownerId]
     );
     return NextResponse.json({ contact: rows[0] }, { status: 201 });
   } catch (error) {
